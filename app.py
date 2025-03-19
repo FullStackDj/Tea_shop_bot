@@ -2,6 +2,7 @@ import asyncio
 import environ
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
+from aiogram.enums import ParseMode
 from aiogram.types import BotCommandScopeAllPrivateChats
 
 from handlers.user_private import user_private_router
@@ -13,7 +14,7 @@ environ.Env.read_env()
 
 ALLOWED_UPDATES = ['message, edited_message']
 
-bot = Bot(token=env('TOKEN'))
+bot = Bot(token=env('TOKEN'), parse_mode=ParseMode.HTML)
 dp = Dispatcher()
 
 dp.include_router(user_private_router)
