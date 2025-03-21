@@ -4,8 +4,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.filters import StateFilter
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from filters.chat_types import ChatTypeFilter, IsAdmin
 from key_boards.reply import get_keyboard
+from database.models import Product
 
 admin_router = Router()
 admin_router.message.filter(ChatTypeFilter(['private']), IsAdmin())
@@ -82,11 +85,13 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         return
 
     previous = None
+
     for step in AddProduct.__all_states__:
         if step.state == current_state:
             await state.set_state(previous)
             await message.answer(f'Okay, you have returned to the previous step. \n{AddProduct.texts[previous.state]}')
             return
+
         previous = step
 
 
@@ -127,11 +132,20 @@ async def add_price2(message: types.Message, state: FSMContext):
 
 
 @admin_router.message(AddProduct.image, F.photo)
-async def add_image(message: types.Message, state: FSMContext):
+async def add_image(message: types.Message, state: FSMContext, session: AsyncSession):
     await state.update_data(image=message.photo[-1].file_id)
     await message.answer('Product added', reply_markup=ADMIN_KB)
     data = await state.get_data()
-    await message.answer(str(data))
+
+    obj = Product(
+        name=data['name'],
+        description=data['description'],
+        price=float(data['price']),
+        image=data['image'],
+    )
+    session.add(obj)
+    await session.commit()
+
     await state.clear()
 
 
