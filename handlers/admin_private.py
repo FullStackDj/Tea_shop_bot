@@ -8,7 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from filters.chat_types import ChatTypeFilter, IsAdmin
 from key_boards.reply import get_keyboard
-from database.orm_query import orm_get_products, orm_delete_product, orm_get_product, orm_update_product
+from database.orm_query import orm_add_product, orm_get_products, orm_delete_product, orm_get_product, \
+    orm_update_product
 from key_boards.inline import get_callback_btns
 
 admin_router = Router()

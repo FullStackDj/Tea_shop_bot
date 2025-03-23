@@ -6,7 +6,7 @@ from database.models import Base
 env = environ.Env()
 environ.Env.read_env()
 
-engine = create_async_engine((env('DB_LITE')), echo=True)
+engine = create_async_engine((env('DB_URL')), echo=True)
 
 session_maker = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
