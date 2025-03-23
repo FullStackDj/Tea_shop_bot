@@ -37,4 +37,3 @@ async def cleaner(message: types.Message):
             f'{message.from_user.first_name}, please maintain order in the chat!'
         )
         await message.delete()
-        # await message.chat.ban(message.from_user.id)

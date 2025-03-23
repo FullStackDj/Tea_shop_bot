@@ -33,7 +33,6 @@ def get_keyboard(
         elif request_location and request_location == index:
             keyboard.add(KeyboardButton(text=text, request_location=True))
         else:
-
             keyboard.add(KeyboardButton(text=text))
 
     return keyboard.adjust(*sizes).as_markup(
