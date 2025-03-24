@@ -19,7 +19,6 @@ from database.orm_query import (
 
 from filters.chat_types import ChatTypeFilter, IsAdmin
 
-from key_boards.inline import get_callback_btns
 from key_boards.reply import get_keyboard
 
 admin_router = Router()
@@ -52,7 +51,7 @@ async def starring_at_product(callback: types.CallbackQuery, session: AsyncSessi
     for product in await orm_get_products(session, int(category_id)):
         await callback.message.answer_photo(
             product.image,
-            caption=f"<strong>{product.name}</strong>\n{product.description}\nPrice: {round(product.price, 2)}",
+            caption=f'<strong>{product.name}</strong>\n{product.description}\nPrice: {round(product.price, 2)}',
             reply_markup=get_callback_btns(
                 btns={
                     'Delete': f'delete_{product.id}',

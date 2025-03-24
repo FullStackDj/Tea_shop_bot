@@ -1,6 +1,5 @@
 from aiogram import F, types, Router
 from aiogram.filters import CommandStart
-from aiogram.enums import ParseMode
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.orm_query import (
@@ -9,26 +8,48 @@ from database.orm_query import (
 )
 
 from filters.chat_types import ChatTypeFilter
-from key_boards.inline import get_callback_btns
+from handlers.menu_processing import get_menu_content
+from key_boards.inline import MenuCallBack, get_user_main_btns
 
 user_private_router = Router()
 user_private_router.message.filter(ChatTypeFilter(['private']))
 
 
 @user_private_router.message(CommandStart())
-async def start_cmd(message: types.Message):
-    await message.answer('Hello, I am your virtual assistant',
-                         reply_markup=get_callback_btns(btns={
-                             'Click me': 'some_1'
-                         }))
+async def start_cmd(message: types.Message, session: AsyncSession):
+    media, reply_markup = await get_menu_content(session, level=0, menu_name='main')
+
+    await message.answer_photo(media.media, caption=media.caption, reply_markup=reply_markup)
 
 
-@user_private_router.callback_query(F.data.startswith('some_'))
-async def counter(callback: types.CallbackQuery):
-    number = int(callback.data.split('_')[-1])
+async def add_to_cart(callback: types.CallbackQuery, callback_data: MenuCallBack, session: AsyncSession):
+    user = callback.from_user
+    await orm_add_user(
+        session,
+        user_id=user.id,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        phone=None,
+    )
+    await orm_add_to_cart(session, user_id=user.id, product_id=callback_data.product_id)
+    await callback.answer('Product added to cart.')
 
-    await callback.message.edit_text(
-        text=f'Clicks - {number}',
-        reply_markup=get_callback_btns(btns={
-            'Click again': f'some_{number + 1}'
-        }))
+
+@user_private_router.callback_query(MenuCallBack.filter())
+async def user_menu(callback: types.CallbackQuery, callback_data: MenuCallBack, session: AsyncSession):
+    if callback_data.menu_name == 'add_to_cart':
+        await add_to_cart(callback, callback_data, session)
+        return
+
+    media, reply_markup = await get_menu_content(
+        session,
+        level=callback_data.level,
+        menu_name=callback_data.menu_name,
+        category=callback_data.category,
+        page=callback_data.page,
+        product_id=callback_data.product_id,
+        user_id=callback.from_user.id,
+    )
+
+    await callback.message.edit_media(media=media, reply_markup=reply_markup)
+    await callback.answer()
