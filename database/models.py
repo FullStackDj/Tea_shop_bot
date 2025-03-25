@@ -56,3 +56,25 @@ class Cart(Base):
 
     user: Mapped['User'] = relationship(backref='cart')
     product: Mapped['Product'] = relationship(backref='cart')
+
+
+class Order(Base):
+    __tablename__ = 'order'
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
+
+    user: Mapped['User'] = relationship(backref='orders')
+
+
+class OrderItem(Base):
+    __tablename__ = 'order_item'
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey('order.id', ondelete='CASCADE'), nullable=False)
+    product_id: Mapped[int] = mapped_column(ForeignKey('product.id', ondelete='CASCADE'), nullable=False)
+    quantity: Mapped[int]
+
+    order: Mapped['Order'] = relationship(backref='order_items')
+    product: Mapped['Product'] = relationship(backref='order_items')

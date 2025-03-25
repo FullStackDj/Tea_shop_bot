@@ -24,5 +24,6 @@ description_for_info_pages = {
         sep='\n----------------------\n',
     ).as_html(),
     'catalog': 'Categories:',
-    'cart': 'Your cart is empty!'
+    'cart': 'Your cart is empty!',
+    'order': 'Check the order'
 }

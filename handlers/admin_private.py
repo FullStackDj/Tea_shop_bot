@@ -20,6 +20,7 @@ from database.orm_query import (
 from filters.chat_types import ChatTypeFilter, IsAdmin
 
 from key_boards.reply import get_keyboard
+from key_boards.inline import get_callback_btns
 
 admin_router = Router()
 admin_router.message.filter(ChatTypeFilter(['private']), IsAdmin())
