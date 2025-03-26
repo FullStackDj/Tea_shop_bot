@@ -58,58 +58,58 @@ async def user_menu(callback: types.CallbackQuery, callback_data: MenuCallBack, 
 
 
 class OrderForm(StatesGroup):
-    waiting_for_name = State()
-    waiting_for_surname = State()
-    waiting_for_phone = State()
-    waiting_for_delivery = State()
-    waiting_for_payment = State()
+    name = State()
+    surname = State()
+    phone = State()
+    delivery = State()
+    payment = State()
     confirm_order = State()
 
 
-@user_private_router.callback_query(MenuCallBack.filter(F.menu_name == 'order'), StateFilter(None))
+@user_private_router.callback_query(StateFilter(None), F.text == 'Add/Change Banner')
 async def order_callback(callback: types.CallbackQuery, callback_data: MenuCallBack, session: AsyncSession,
                          state: FSMContext):
     await callback.answer('Let\'s start the order process. What is your name?')
-    await state.set_state(OrderForm.waiting_for_name)
+    await state.set_state(OrderForm.name)
 
 
-@user_private_router.message(OrderForm.waiting_for_name)
+@user_private_router.message(OrderForm.name)
 async def process_name(message: types.Message, state: FSMContext):
     name = message.text
 
     await state.update_data(name=name)
     await message.answer('Now enter your surname.')
-    await state.set_state(OrderForm.waiting_for_surname)
+    await state.set_state(OrderForm.surname)
 
 
-@user_private_router.message(OrderForm.waiting_for_surname)
+@user_private_router.message(OrderForm.surname)
 async def process_surname(message: types.Message, state: FSMContext):
     surname = message.text
 
     await state.update_data(surname=surname)
     await message.answer('Enter your phone number.')
-    await state.set_state(OrderForm.waiting_for_phone)
+    await state.set_state(OrderForm.phone)
 
 
-@user_private_router.message(OrderForm.waiting_for_phone)
+@user_private_router.message(OrderForm.phone)
 async def process_phone(message: types.Message, state: FSMContext):
     phone = message.text
 
     await state.update_data(phone=phone)
     await message.answer('Choose a delivery method (for example, "Courier" or "Pickup").')
-    await state.set_state(OrderForm.waiting_for_delivery)
+    await state.set_state(OrderForm.delivery)
 
 
-@user_private_router.message(OrderForm.waiting_for_delivery)
+@user_private_router.message(OrderForm.delivery)
 async def process_delivery(message: types.Message, state: FSMContext):
     delivery_method = message.text
 
     await state.update_data(delivery_method=delivery_method)
     await message.answer('Now choose a payment method (for example, "Cash" or "Card").')
-    await state.set_state(OrderForm.waiting_for_payment)
+    await state.set_state(OrderForm.payment)
 
 
-@user_private_router.message(OrderForm.waiting_for_payment)
+@user_private_router.message(OrderForm.payment)
 async def process_payment(message: types.Message, state: FSMContext):
     payment_method = message.text
     await state.update_data(payment_method=payment_method)

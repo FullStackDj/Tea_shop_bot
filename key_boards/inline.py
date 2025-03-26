@@ -19,7 +19,6 @@ def get_user_main_btns(*, level: int, sizes: tuple[int] = (2,)):
         'About Us ℹ️': 'about',
         'Payment 💰': 'payment',
         'Shipping ⛵': 'shipping',
-        'Order ⛵': 'order',
     }
     for text, menu_name in btns.items():
         if menu_name == 'catalog':
